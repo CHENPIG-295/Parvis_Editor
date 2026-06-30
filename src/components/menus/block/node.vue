@@ -118,6 +118,7 @@
 </template>
 
 <script setup>
+import { openFileSelector } from '@/extensions/file'
 const props = defineProps({
   node: {
     type: Object,
@@ -160,11 +161,7 @@ const disableMenu = (name) => {
 }
 
 const insertImage = () => {
-  editor.value
-    ?.chain()
-    .focus()
-    .selectFiles('image', container, uploadFileMap.value)
-    .run()
+  openFileSelector('image', editor.value, container, uploadFileMap.value)
 }
 
 const setTemplate = ({ content }) => {

@@ -33,9 +33,7 @@
       :class="`umo-toolbar-actions-${$toolbar.mode}`"
     >
       <t-popup
-        v-if="
-          options.toolbar.showSaveLabel && options.document.readOnly !== true
-        "
+        v-if="false && options.toolbar.showSaveLabel && options.document.readOnly !== true"
         v-model="statusPopup"
         :attach="container"
         trigger="click"
@@ -94,6 +92,7 @@
         </template>
       </t-popup>
       <t-dropdown
+        v-if="false"
         trigger="click"
         size="small"
         placement="bottom-right"
@@ -145,6 +144,7 @@ const editor = inject('editor')
 const savedAt = inject('savedAt')
 const options = inject('options')
 const $toolbar = useState('toolbar', options)
+$toolbar.value.mode = 'classic'
 let statusPopup = $ref(false)
 const online = useOnline()
 
@@ -183,7 +183,7 @@ watch(
   },
 )
 
-// 切换编辑器模式
+// 切换编辑器模式（入口已隐藏，保留逻辑备用）
 const editorModeOptions = [
   {
     label: t('toolbar.ribbon'),
@@ -211,7 +211,7 @@ const toggleToolbarMode = ({ value }) => {
   }
 }
 
-// 保存文档
+// 保存文档（入口已隐藏，保留逻辑备用）
 const saveContentMethod = inject('saveContent')
 const saveContent = () => {
   saveContentMethod()

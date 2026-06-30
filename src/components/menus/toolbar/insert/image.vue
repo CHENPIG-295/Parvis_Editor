@@ -28,6 +28,8 @@
 </template>
 
 <script setup>
+import { openFileSelector } from '@/extensions/file'
+
 const container = inject('container')
 const editor = inject('editor')
 const uploadFileMap = inject('uploadFileMap')
@@ -48,11 +50,7 @@ const imageOptions = [
 ]
 
 const insertImage = (type) => {
-  editor.value
-    ?.chain()
-    .focus()
-    .selectFiles(type, container, uploadFileMap.value)
-    .run()
+  openFileSelector(type, editor.value, container, uploadFileMap.value)
 }
 </script>
 <style lang="less">

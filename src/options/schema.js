@@ -650,6 +650,15 @@ export default new ObjectSchema({
         },
         required: false,
       },
+      onFilePick: {
+        merge: 'replace',
+        validate(value) {
+          if (value !== undefined && typeof value !== 'function') {
+            throw new Error('Key "file": Key "onFilePick" must be a function.')
+          }
+        },
+        required: false,
+      },
     },
   },
   user: {

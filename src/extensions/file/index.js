@@ -234,6 +234,95 @@ export default Node.create({
   },
 })
 
+export const openFileSelector = (type, editor, container, uploadFileMap) => {
+  const { options } = editor.storage
+  const accept = getAccept(type, options.file.allowedMimeTypes)
+  if ((!accept && accept !== '') || accept === 'notAllow') {
+    const dialog = useAlert({
+      attach: container,
+      theme: 'danger',
+      header: t('file.notAllow.title'),
+      body: t('file.notAllow.message'),
+      onConfirm() {
+        dialog.destroy()
+      },
+    })
+    return
+  }
+
+  const insertFiles = (fileList) => {
+    const files = Array.from(fileList || [])
+    for (const file of files) {
+      editor
+        .chain()
+        .focus()
+        .insertFile({
+          file,
+          uploadFileMap,
+          autoType: true,
+          dimensions: { inline: type === 'inlineImage' },
+        })
+        .run()
+    }
+  }
+
+  // 宿主注入的文件选择器钩子（如 Tauri 走 @tauri-apps/plugin-dialog 调起系统
+  // 原生文件框，再用 plugin-fs 读出 File[]）。WKWebView 下 HTML 原生
+  // <input type=file> 不可用，必须由宿主接管。钩子可返回 File[] 或其 Promise。
+  const onFilePick = options.file?.onFilePick
+  if (typeof onFilePick === 'function') {
+    Promise.resolve(
+      onFilePick({
+        type,
+        accept,
+        multiple: true,
+        mimeTypes: mimeTypes[type] ?? [],
+      }),
+    )
+      .then((files) => {
+        if (files) {
+          insertFiles(files)
+        }
+      })
+      .catch((err) => {
+        console.error('[parvis-editor] onFilePick failed:', err)
+      })
+    return
+  }
+
+  // 回退：浏览器环境用原生 input（挂到 DOM 后再 click，用完即移除）。
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.multiple = true
+  if (accept) {
+    input.accept = accept
+  }
+  input.style.position = 'fixed'
+  input.style.left = '-9999px'
+  input.style.width = '1px'
+  input.style.height = '1px'
+  input.style.opacity = '0'
+
+  const cleanup = () => {
+    input.removeEventListener('change', onChange)
+    input.removeEventListener('cancel', cleanup)
+    input.remove()
+  }
+  const onChange = (event) => {
+    insertFiles(event.target.files)
+    cleanup()
+  }
+  input.addEventListener('change', onChange)
+  input.addEventListener('cancel', cleanup)
+
+  const mountTarget =
+    (typeof container === 'string' && document.querySelector(container)) ||
+    document.body
+  mountTarget.appendChild(input)
+  // 在用户手势上下文中同步调用，避免浏览器拦截文件选择框
+  input.click()
+}
+
 export const updateAttributesWithoutHistory = (editor, attrs, pos) => {
   const { state, view } = editor
 

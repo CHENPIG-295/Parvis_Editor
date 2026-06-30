@@ -11,7 +11,6 @@
       ref="contentRef"
       class="umo-scrollable-content"
       @scroll.passive="checkScrollPosition"
-      @wheel.passive="wheelScroll"
     >
       <slot />
     </div>
@@ -31,29 +30,48 @@ const contentRef = $ref(null)
 let hidePrev = $ref(true)
 let hideNext = $ref(true)
 
+const getMaxScrollLeft = () => {
+  if (!contentRef) {
+    return 0
+  }
+  return Math.max(contentRef.scrollWidth - contentRef.clientWidth, 0)
+}
+
+const getScrollStep = () => {
+  if (!contentRef) {
+    return 100
+  }
+  return Math.max(Math.floor(contentRef.clientWidth * 0.7), 100)
+}
+
 const checkScrollPosition = () => {
   const { scrollLeft = 0, scrollWidth = 0, clientWidth = 0 } = contentRef || {}
-  hidePrev = scrollLeft === 0
-  hideNext = scrollLeft + clientWidth + 20 >= scrollWidth
+  hidePrev = scrollLeft <= 1
+  hideNext = scrollLeft + clientWidth >= scrollWidth - 1
+}
+
+const scrollTo = (left) => {
+  if (!contentRef) {
+    return
+  }
+  contentRef.scrollTo({
+    left: Math.min(Math.max(left, 0), getMaxScrollLeft()),
+    behavior: 'smooth',
+  })
 }
 
 const scrollLeft = () => {
-  contentRef.scrollLeft -= contentRef.offsetWidth - 10 || 100
+  scrollTo(contentRef.scrollLeft - getScrollStep())
 }
 
 const scrollRight = () => {
-  contentRef.scrollLeft += contentRef.offsetWidth - 10 || 100
+  scrollTo(contentRef.scrollLeft + getScrollStep())
 }
 
 // 监听父元素大小变化
 useResizeObserver(wraperRef, () => {
   checkScrollPosition()
 })
-
-// 支持鼠标滚轮滚动
-const wheelScroll = (e) => {
-  e.deltaY < 0 ? scrollLeft() : scrollRight()
-}
 
 // 更新
 const update = () => {
@@ -143,7 +161,8 @@ defineExpose({
   .umo-scrollable-content {
     overflow-x: auto;
     overflow-y: hidden;
-    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
     flex: 1;
     &::-webkit-scrollbar {
       display: none;

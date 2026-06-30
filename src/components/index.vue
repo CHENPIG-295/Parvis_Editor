@@ -1248,10 +1248,6 @@ watch(
           unsetFormatPainter()
         }
       })
-      useHotkeys('ctrl+p,command+p', () => {
-        print()
-        unsetFormatPainter()
-      })
       useHotkeys('ctrl+f, command+f', () => {
         searchReplace.value = true
       })

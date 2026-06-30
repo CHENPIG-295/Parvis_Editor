@@ -72,6 +72,7 @@
             <menus-toolbar-base-heading />
           </div>
           <div class="umo-virtual-group">
+            <menus-toolbar-insert-image v-if="!disableMenu('image')" />
             <menus-toolbar-base-markdown v-if="!disableMenu('markdown')" />
             <menus-toolbar-base-search-replace />
           </div>

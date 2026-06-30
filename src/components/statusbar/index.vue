@@ -1,7 +1,7 @@
 <template>
   <div v-if="!page.preview?.enabled" class="umo-status-bar">
     <div class="umo-status-bar-left">
-      <tooltip :content="page.showToc ? t('toc.hide') : t('toc.show')">
+      <tooltip v-if="false" :content="page.showToc ? t('toc.hide') : t('toc.show')">
         <t-button
           class="umo-status-bar-button"
           :class="{ active: page.showToc }"
@@ -13,7 +13,7 @@
         </t-button>
       </tooltip>
       <tooltip
-        v-if="options.document?.enableSpellcheck"
+        v-if="false && options.document?.enableSpellcheck"
         :content="
           $document?.enableSpellcheck
             ? t('spellcheck.disable')
@@ -30,7 +30,7 @@
           <icon name="spellcheck" color="red" />
         </t-button>
       </tooltip>
-      <tooltip :content="t('shortcut.title')">
+      <tooltip v-if="false" :content="t('shortcut.title')">
         <t-button
           class="umo-status-bar-button"
           variant="text"
@@ -40,7 +40,7 @@
           <icon name="shortcut" />
         </t-button>
       </tooltip>
-      <tooltip :content="t('resetAll.title')">
+      <tooltip v-if="false" :content="t('resetAll.title')">
         <t-button
           class="umo-status-bar-button"
           variant="text"
@@ -50,8 +50,9 @@
           <icon name="clear-cache" />
         </t-button>
       </tooltip>
-      <div class="umo-status-bar-split"></div>
+      <div v-if="false" class="umo-status-bar-split"></div>
       <t-dropdown
+        v-if="false"
         :attach="container"
         :popup-props="{
           onVisibleChange(visible) {
@@ -90,55 +91,16 @@
           </t-dropdown-item>
         </t-dropdown-menu>
       </t-dropdown>
-      <div class="umo-status-bar-split"></div>
-      <t-popup
-        v-if="editor"
-        v-model="showWordCount"
-        trigger="click"
-        placement="top-left"
-      >
-        <t-button
-          class="umo-status-bar-button auto-width word-count"
-          variant="text"
-          size="small"
-        >
-          <span v-if="selectionCharacters > 0">
-            {{ selectionCharacters }}/
-          </span>
-          <span class="umo-word-count">{{ totalCharacters }}</span>
-          {{ t('wordCount.characters') }}
-          <icon
-            name="arrow-down"
-            :style="{ transform: `rotate(${showWordCount ? '180deg' : 0})` }"
-          />
-        </t-button>
-        <template #content>
-          <div v-if="showWordCount" class="umo-word-count-detail">
-            <div class="umo-word-count-title">{{ t('wordCount.title') }}</div>
-            <ul>
-              <li>
-                {{ t('wordCount.input') }}
-                <span>
-                  {{ totalCharacters }}
-                </span>
-              </li>
-              <li>
-                {{ t('wordCount.selection') }}
-                <span>{{ selectionCharacters }}</span>
-              </li>
-              <li v-if="options.document?.characterLimit > 0">
-                {{ t('wordCount.limit') }}
-                <span>
-                  {{ options.document?.characterLimit }}
-                </span>
-              </li>
-            </ul>
-          </div>
-        </template>
-      </t-popup>
-      <div class="umo-status-bar-split"></div>
+      <div v-if="editor" class="umo-status-bar-button auto-width word-count">
+        <span v-if="selectionCharacters > 0">
+          {{ selectionCharacters }}/
+        </span>
+        <span class="umo-word-count">{{ totalCharacters }}</span>
+        {{ t('wordCount.characters') }}
+      </div>
       <!-- 请遵循开源协议，勿删除或隐藏版权信息！ -->
       <t-button
+        v-if="false"
         class="umo-status-bar-button auto-width"
         variant="text"
         size="small"
@@ -149,6 +111,7 @@
     </div>
     <div class="umo-status-bar-right">
       <tooltip
+        v-if="false"
         :content="`${fullscreen?.isFullscreen ? t('fullscreen.disable') : t('fullscreen.title')} (${getShortcut('Ctrl+F11')})`"
       >
         <t-button
@@ -161,6 +124,7 @@
         </t-button>
       </tooltip>
       <tooltip
+        v-if="false"
         :content="
           page.preview?.enabled ? t('preview.disable') : t('preview.title')
         "
@@ -175,7 +139,6 @@
           <icon name="preview" />
         </t-button>
       </tooltip>
-      <div class="umo-status-bar-split"></div>
       <div v-if="page.layout === 'page'" class="umo-zoom-level-bar">
         <tooltip :content="`${t('zoom.zoomOut')} (${getShortcut('Ctrl-')})`">
           <t-button
@@ -238,6 +201,7 @@
         </tooltip>
       </div>
       <t-dropdown
+        v-if="false"
         :attach="container"
         :options="langs"
         placement="top-left"
@@ -353,7 +317,6 @@ const showShortcut = $ref(false)
 const reset = inject('reset')
 
 // 字数统计
-const showWordCount = $ref(false)
 let totalCharacters = $ref(0)
 let selectionCharacters = $ref(0)
 const updateTotalCharacters = () => {
@@ -586,7 +549,6 @@ watch(
   () => editor.value,
   () => {
     editor.value?.on('focus', () => {
-      useHotkeys('ctrl+f11, command+f11', toggleFullscreen)
       useHotkeys('ctrl+0,command+0', autoWidth)
       useHotkeys('ctrl+-,command+-', zoomOut)
       useHotkeys('ctrl+=,command+=', zoomIn)

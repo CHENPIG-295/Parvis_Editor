@@ -29,14 +29,14 @@
         <div class="umo-virtual-group">
           <menus-toolbar-base-undo />
           <menus-toolbar-base-redo />
-          <menus-toolbar-base-format-painter />
-          <menus-toolbar-base-clear-format />
+          <menus-toolbar-base-format-painter v-if="false" />
+          <menus-toolbar-base-clear-format v-if="false" />
         </div>
         <div class="umo-virtual-group">
           <menus-toolbar-base-heading />
           <menus-toolbar-base-font-family borderless />
           <menus-toolbar-base-font-size borderless />
-          <menus-toolbar-base-word-wrap />
+          <menus-toolbar-base-word-wrap v-if="false" />
           <menus-toolbar-base-bold />
           <menus-toolbar-base-italic />
           <menus-toolbar-base-underline />
@@ -46,27 +46,28 @@
           <menus-toolbar-base-color />
           <menus-toolbar-base-background-color />
           <menus-toolbar-base-highlight v-if="!disableMenu('highlight')" />
-          <menus-toolbar-base-letter-spacing />
+          <menus-toolbar-base-letter-spacing v-if="false" />
         </div>
         <div class="umo-virtual-group">
           <menus-toolbar-base-ordered-list />
           <menus-toolbar-base-bullet-list />
-          <menus-toolbar-base-task-list v-if="!disableMenu('task-list')" />
+          <menus-toolbar-base-task-list v-if="false" />
           <menus-toolbar-base-indent />
           <menus-toolbar-base-outdent />
-          <menus-toolbar-base-line-height v-if="!disableMenu('line-height')" />
+          <menus-toolbar-base-line-height v-if="false" />
           <menus-toolbar-base-margin v-if="!disableMenu('margin')" />
           <menus-toolbar-base-align-dropdown />
-          <menus-toolbar-base-code v-if="!disableMenu('code')" />
-          <menus-toolbar-base-quote v-if="!disableMenu('quote')" />
-          <menus-toolbar-base-select-all v-if="!disableMenu('select-all')" />
+          <menus-toolbar-base-code v-if="false" />
+          <menus-toolbar-base-quote v-if="false" />
+          <menus-toolbar-base-select-all v-if="false" />
         </div>
         <div class="umo-virtual-group">
-          <menus-toolbar-base-markdown v-if="!disableMenu('markdown')" />
+          <menus-toolbar-insert-image v-if="!disableMenu('image')" />
+          <menus-toolbar-base-markdown v-if="false" />
           <menus-toolbar-base-search-replace />
         </div>
         <div class="umo-virtual-group">
-          <menus-toolbar-base-print v-if="!disableMenu('print')" />
+          <menus-toolbar-base-print v-if="false" />
         </div>
         <div class="virtual-group is-slot">
           <slot name="toolbar_base" toolbar-mode="classic" />
@@ -78,35 +79,33 @@
           <menus-toolbar-insert-image v-if="!disableMenu('image')" />
           <menus-toolbar-insert-video v-if="!disableMenu('video')" />
           <menus-toolbar-insert-audio v-if="!disableMenu('audio')" />
-          <menus-toolbar-insert-file v-if="!disableMenu('file')" />
+          <menus-toolbar-insert-file v-if="false" />
         </div>
         <div class="umo-virtual-group">
           <menus-toolbar-insert-text-box v-if="!disableMenu('text-box')" />
-          <menus-toolbar-insert-details v-if="!disableMenu('details')" />
-          <menus-toolbar-insert-code-block v-if="!disableMenu('code-block')" />
+          <menus-toolbar-insert-details v-if="false" />
+          <menus-toolbar-insert-code-block v-if="false" />
           <menus-toolbar-insert-symbol v-if="!disableMenu('symbol')" />
-          <menus-toolbar-insert-chinese-date
-            v-if="!disableMenu('chinese-date')"
-          />
-          <menus-toolbar-insert-emoji v-if="!disableMenu('emoji')" />
+          <menus-toolbar-insert-chinese-date v-if="false" />
+          <menus-toolbar-insert-emoji v-if="false" />
         </div>
         <div class="umo-virtual-group">
           <menus-toolbar-insert-tag v-if="!disableMenu('tag')" />
-          <menus-toolbar-insert-columns v-if="!disableMenu('columns')" />
-          <menus-toolbar-insert-callout v-if="!disableMenu('callout')" />
-          <menus-toolbar-insert-mention v-if="!disableMenu('mention')" />
+          <menus-toolbar-insert-columns v-if="false" />
+          <menus-toolbar-insert-callout v-if="false" />
+          <menus-toolbar-insert-mention v-if="false" />
           <menus-toolbar-insert-option-box v-if="!disableMenu('option-box')" />
         </div>
         <div class="umo-virtual-group">
-          <menus-toolbar-insert-hard-break v-if="!disableMenu('hard-break')" />
-          <menus-toolbar-insert-hr v-if="!disableMenu('hr')" />
+          <menus-toolbar-insert-hard-break v-if="false" />
+          <menus-toolbar-insert-hr v-if="false" />
           <menus-toolbar-insert-bookmark v-if="!disableMenu('bookmark')" />
           <menus-toolbar-insert-footnote v-if="!disableMenu('footnote')" />
-          <menus-toolbar-insert-toc v-if="!disableMenu('toc')" />
+          <menus-toolbar-insert-toc v-if="false" />
         </div>
         <div class="umo-virtual-group">
           <menus-toolbar-insert-template v-if="!disableMenu('template')" />
-          <menus-toolbar-insert-web-page v-if="!disableMenu('web-page')" />
+          <menus-toolbar-insert-web-page v-if="false" />
         </div>
         <div class="virtual-group is-slot">
           <slot name="toolbar_insert" toolbar-mode="classic" />
@@ -154,21 +153,19 @@
       </template>
       <template v-if="currentMenu === 'tools'">
         <div class="umo-virtual-group">
-          <menus-toolbar-tools-qrcode v-if="!disableMenu('qrcode')" />
-          <menus-toolbar-tools-barcode v-if="!disableMenu('barcode')" />
+          <menus-toolbar-tools-qrcode v-if="false" />
+          <menus-toolbar-tools-barcode v-if="false" />
           <menus-toolbar-tools-signature v-if="!disableMenu('signature')" />
         </div>
         <div class="umo-virtual-group">
-          <menus-toolbar-tools-math v-if="!disableMenu('math')" />
+          <menus-toolbar-tools-math v-if="false" />
           <menus-toolbar-tools-diagrams v-if="!disableMenu('diagrams')" />
           <menus-toolbar-tools-echarts v-if="!disableMenu('echarts')" />
           <!-- <menus-toolbar-tools-mind-map v-if="!disableMenu('mind-map')" /> -->
-          <menus-toolbar-tools-mermaid v-if="!disableMenu('mermaid')" />
+          <menus-toolbar-tools-mermaid v-if="false" />
         </div>
         <div class="umo-virtual-group">
-          <menus-toolbar-tools-chinese-case
-            v-if="!disableMenu('chinese-case')"
-          />
+          <menus-toolbar-tools-chinese-case v-if="false" />
         </div>
         <div class="virtual-group is-slot">
           <slot name="toolbar_tools" toolbar-mode="classic" />

@@ -1,4 +1,6 @@
+import Blockquote from '@tiptap/extension-blockquote'
 import Bold from '@tiptap/extension-bold'
+import Code from '@tiptap/extension-code'
 import {
   Details,
   DetailsContent,
@@ -116,7 +118,11 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
   const extensions = {
     'ordered-list': OrderedList,
     'bullet-list': BulletList,
-    'task-list': TaskList.configure({
+    'task-list': TaskList.extend({
+      addKeyboardShortcuts() {
+        return {}
+      },
+    }).configure({
       HTMLAttributes: {
         class: 'umo-task-list',
       },
@@ -158,6 +164,8 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
     StarterKit.configure({
       document: false,
       bold: false,
+      code: false,
+      blockquote: false,
       codeBlock: false,
       horizontalRule: false,
       undoRedo: false,
@@ -204,6 +212,16 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
     WordWrap,
     Bold.extend({
       renderHTML: ({ HTMLAttributes }) => ['b', HTMLAttributes, 0],
+    }),
+    Code.extend({
+      addKeyboardShortcuts() {
+        return {}
+      },
+    }),
+    Blockquote.extend({
+      addKeyboardShortcuts() {
+        return {}
+      },
     }),
     Subscript,
     Superscript,
