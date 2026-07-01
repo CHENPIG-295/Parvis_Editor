@@ -20,8 +20,8 @@
     <div class="umo-bubble-menu-divider"></div>
     <menus-bubble-image-flip />
     <menus-bubble-image-proportion />
-    <menus-bubble-image-draggable />
-    <menus-bubble-image-rotate />
+    <menus-bubble-image-draggable v-if="false" />
+    <menus-bubble-image-rotate v-if="!isDiagrams()" />
     <menus-bubble-image-reset />
     <div class="umo-bubble-menu-divider"></div>
     <menus-bubble-image-preview
@@ -31,16 +31,11 @@
       "
     />
     <menus-bubble-image-edit />
-    <menus-bubble-image-open />
+    <menus-bubble-image-open v-if="false" />
     <menus-bubble-node-duplicate
       v-if="is('image') && attrs('image').draggable"
     />
-    <menus-bubble-node-tofile
-      v-if="
-        attrs('image').previewType !== null &&
-        attrs('inlineImage').previewType !== null
-      "
-    />
+    <menus-bubble-node-tofile v-if="false" />
     <menus-bubble-image-convert />
     <div class="umo-bubble-menu-divider"></div>
     <menus-bubble-node-delete />
@@ -190,6 +185,15 @@ const is = (type) => {
 }
 const attrs = (type) => {
   return editor.value.getAttributes(type)
+}
+
+// 流程图（diagrams）作为图片节点插入，但不适用浮动/旋转/新窗口打开/转为文件
+// 等图片操作，据此在气泡栏隐藏相关按钮。
+const isDiagrams = () => {
+  return (
+    attrs('image')?.type === 'diagrams' ||
+    attrs('inlineImage')?.type === 'diagrams'
+  )
 }
 
 const getCurrentNode = (type) => {

@@ -608,9 +608,32 @@ export default new ObjectSchema({
     required: false,
   },
   diagrams: {
+    required: false,
     merge: 'assign',
     validate: 'object',
-    required: false,
+    schema: {
+      domain: {
+        merge: 'replace',
+        validate: 'string',
+        required: false,
+      },
+      params: {
+        merge: 'assign',
+        validate: 'object',
+        required: false,
+      },
+      // 宿主注入的流程图编辑钩子：点流程图时委托宿主弹窗，画完返回
+      // { src, width, height, content } 图片数据；未注入则回退到编辑器自带 modal。
+      onEdit: {
+        merge: 'replace',
+        validate(value) {
+          if (value !== undefined && typeof value !== 'function') {
+            throw new Error('Key "diagrams": Key "onEdit" must be a function.')
+          }
+        },
+        required: false,
+      },
+    },
   },
   file: {
     required: false,

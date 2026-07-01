@@ -91,6 +91,35 @@ watch(
       }
       return
     }
+
+    // 宿主注入了 onEdit：委托宿主弹窗，不打开编辑器自带的 iframe modal。
+    const onEdit = options.value.diagrams?.onEdit
+    if (typeof onEdit === 'function') {
+      dialogVisible = false
+      try {
+        const result = await onEdit({ content: props.content || '' })
+        if (result?.src) {
+          const inserted = {
+            id: shortId(10),
+            type: 'diagrams',
+            src: result.src,
+            width: result.width,
+            height: result.height,
+            content: result.content ?? result.src,
+          }
+          editor.value
+            ?.chain()
+            .focus()
+            .setImage(inserted, !!props.content)
+            .run()
+        }
+      } catch (err) {
+        console.error('[parvis-editor] diagrams.onEdit failed:', err)
+      }
+      return
+    }
+
+    // 回退：编辑器自带的 embed.diagrams.net iframe modal。
     await nextTick()
     loading = true
     diagramEditor.edit(props.content || '')

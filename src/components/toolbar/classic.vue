@@ -63,6 +63,9 @@
         </div>
         <div class="umo-virtual-group">
           <menus-toolbar-insert-image v-if="!disableMenu('image')" />
+          <menus-toolbar-tools-signature v-if="!disableMenu('signature')" />
+          <menus-toolbar-tools-diagrams v-if="!disableMenu('diagrams')" />
+          <menus-toolbar-tools-echarts v-if="!disableMenu('echarts')" />
           <menus-toolbar-base-markdown v-if="false" />
           <menus-toolbar-base-search-replace />
         </div>
