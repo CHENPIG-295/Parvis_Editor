@@ -39,16 +39,16 @@
       <t-dropdown-item v-if="!disableMenu('audio')">
         <menus-toolbar-insert-audio :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('file')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-insert-file :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('details')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-insert-details :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('callout')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-insert-callout :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('hr')">
+      <t-dropdown-item v-if="false">
         <menus-button
           ico="hr"
           :text="t('insert.hr.text')"
@@ -58,19 +58,19 @@
           "
         />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('toc')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-insert-toc :huge="false" :tooltip="false" />
       </t-dropdown-item>
       <t-dropdown-item v-if="!disableMenu('text-box')">
         <menus-toolbar-insert-text-box :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('web-page')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-insert-web-page :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('qrcode')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-tools-qrcode :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('barcode')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-tools-barcode :huge="false" :tooltip="false" />
       </t-dropdown-item>
       <t-dropdown-item v-if="!disableMenu('signature')">
@@ -79,7 +79,7 @@
       <t-dropdown-item v-if="!disableMenu('diagrams')">
         <menus-toolbar-tools-diagrams :huge="false" :tooltip="false" />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('math')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-tools-math :huge="false" :tooltip="false" />
       </t-dropdown-item>
       <t-dropdown-item v-if="!disableMenu('echarts')">
@@ -89,7 +89,7 @@
           mode="add"
         />
       </t-dropdown-item>
-      <t-dropdown-item v-if="!disableMenu('mermaid')">
+      <t-dropdown-item v-if="false">
         <menus-toolbar-tools-mermaid :huge="false" :tooltip="false" />
       </t-dropdown-item>
       <t-dropdown-item v-if="options.templates.length > 0">
