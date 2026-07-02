@@ -62,6 +62,7 @@ import OptionBox from './option-box'
 import OrderedList from './ordered-list'
 import PageBreak from './page-break'
 import SearchReplace from './search-replace'
+import Section from './section'
 import Selection from './selection'
 import { Table, TableCell, TableHeader, TableRow } from './table'
 import Tag from './tag'
@@ -144,6 +145,7 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
     tag: Tag,
     columns: Columns,
     callout: Callout,
+    section: Section,
     mention: Mention.configure({
       suggestion: getUsersSuggestion(users, container),
     }),

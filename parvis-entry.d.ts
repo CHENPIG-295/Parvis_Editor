@@ -5,8 +5,22 @@
  * 这里只描述 mountParvisEditor 的命令式契约，编辑器内部细节保持 any。
  */
 declare module '@parvis/editor/parvis' {
+  /** 单个 <section data-section-id> 容器切分出的正文片段 */
+  export interface ParvisEditorSection {
+    /** 与 outline.json 节点 id、sections/{id}.html 文件名强绑定 */
+    sectionId: string | null
+    /** 该节在大纲中的层级 */
+    level: number
+    /** 该节正文的 HTML 片段（不含 <section> 外壳自身） */
+    html: string
+    from: number
+    to: number
+  }
+
   /** UmoEditor 通过 defineExpose 暴露的命令式 API（setContent/getContent/getEditor/...） */
   export interface ParvisEditorExposed {
+    /** 遍历文档，取出所有顶层 <section> 容器及其正文 HTML，供宿主按 id 切分保存 */
+    getSections?: () => ParvisEditorSection[]
     [key: string]: any
   }
 

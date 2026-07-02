@@ -75,6 +75,7 @@ import {
 } from '@/utils/history-record'
 import { getOpitons } from '@/utils/options'
 import { getSelectionNode, getSelectionText } from '@/utils/selection'
+import { getSections } from '@/utils/sections'
 import { shortId } from '@/utils/short-id'
 import { getCurrentInstance } from 'vue'
 const { toBlob, toJpeg, toPng } = domToImage
@@ -1304,6 +1305,7 @@ defineExpose({
   getSelectionText: () => (editor.value ? getSelectionText(editor.value) : ''),
   getSelectionNode: () =>
     editor.value ? getSelectionNode(editor.value) : null,
+  getSections: () => (editor.value ? getSections(editor.value) : []),
   deleteSelectionNode: () => editor.value?.commands.deleteSelectionNode(),
   setCurrentNodeSelection: () =>
     editor.value?.commands.setCurrentNodeSelection(),
