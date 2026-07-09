@@ -639,6 +639,18 @@
     "replace": "Replace",
     "replaceAll": "Replace All"
   },
+  "history": {
+    "text": "History",
+    "empty": "No history versions",
+    "ai": "AI",
+    "manual": "Manual"
+  },
+  "exportDoc": {
+    "text": "Export",
+    "word": "Export Word",
+    "pdf": "Export PDF",
+    "generating": "Generating, please wait…"
+  },
   "toc": {
     "title": "Document Map",
     "show": "Document Map",

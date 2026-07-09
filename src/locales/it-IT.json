@@ -567,6 +567,18 @@
     "replace": "Sostituisci",
     "replaceAll": "Sostituisci tutto"
   },
+  "history": {
+    "text": "Cronologia",
+    "empty": "Nessuna versione storica",
+    "ai": "IA",
+    "manual": "Manuale"
+  },
+  "exportDoc": {
+    "text": "Esporta",
+    "word": "Esporta Word",
+    "pdf": "Esporta PDF",
+    "generating": "Generazione in corso…"
+  },
   "toc": {
     "title": "Indice",
     "show": "Mostra indice",

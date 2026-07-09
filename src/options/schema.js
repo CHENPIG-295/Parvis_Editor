@@ -756,4 +756,55 @@ export default new ObjectSchema({
     },
     required: false,
   },
+  // 历史版本：宿主注入。onList 返回版本数组，onRestore 执行回退。
+  // 未注入则按钮隐藏（写作模式外的场景无历史能力）。
+  history: {
+    required: false,
+    merge: 'assign',
+    validate: 'object',
+    schema: {
+      onList: {
+        merge: 'replace',
+        validate(value) {
+          if (value !== undefined && typeof value !== 'function') {
+            throw new Error('Key "history": Key "onList" must be a function.')
+          }
+        },
+        required: false,
+      },
+      onRestore: {
+        merge: 'replace',
+        validate(value) {
+          if (value !== undefined && typeof value !== 'function') {
+            throw new Error(
+              'Key "history": Key "onRestore" must be a function.',
+            )
+          }
+        },
+        required: false,
+      },
+    },
+  },
+  // 导出：宿主注入 onExport(format)。未注入则按钮隐藏。
+  onExport: {
+    merge: 'replace',
+    validate(value) {
+      if (value !== undefined && typeof value !== 'function') {
+        throw new Error('Key "onExport" must be a function.')
+      }
+    },
+    required: false,
+  },
+  // 原生 PDF 导出：宿主注入。编辑器把带样式 HTML 交给宿主，宿主用各平台 WebView
+  // 引擎渲染成矢量 PDF 并落盘。契约：onExportPdfNative({ html, orientation, filename })
+  // => Promise<boolean>，true=已原生落盘，false/抛错=编辑器回退到 html2pdf。
+  onExportPdfNative: {
+    merge: 'replace',
+    validate(value) {
+      if (value !== undefined && typeof value !== 'function') {
+        throw new Error('Key "onExportPdfNative" must be a function.')
+      }
+    },
+    required: false,
+  },
 })

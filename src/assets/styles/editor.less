@@ -52,18 +52,21 @@
     font-size: var(--umo-font-size);
     font-display: swap;
 
-    >h1[data-placeholder],
-    h2[data-placeholder],
-    h3[data-placeholder],
-    h4[data-placeholder],
-    h5[data-placeholder],
-    h6[data-placeholder],
-    >h1+p[data-placeholder],
-    h2+p[data-placeholder],
-    h3+p[data-placeholder],
-    h4+p[data-placeholder],
-    h5+p[data-placeholder],
-    h6+p[data-placeholder] {
+    // 仅当 data-placeholder 非空时才隐藏 trailingBreak 并用 ::after 显示占位文本。
+    // 空 data-placeholder（如非首个空标题曾返回空串）若也隐藏 trailingBreak，会让空标题
+    // 塌成 0px 高度、不可见不可点。用 :not([data-placeholder=""]) 排除空串场景。
+    >h1[data-placeholder]:not([data-placeholder=""]),
+    h2[data-placeholder]:not([data-placeholder=""]),
+    h3[data-placeholder]:not([data-placeholder=""]),
+    h4[data-placeholder]:not([data-placeholder=""]),
+    h5[data-placeholder]:not([data-placeholder=""]),
+    h6[data-placeholder]:not([data-placeholder=""]),
+    >h1+p[data-placeholder]:not([data-placeholder=""]),
+    h2+p[data-placeholder]:not([data-placeholder=""]),
+    h3+p[data-placeholder]:not([data-placeholder=""]),
+    h4+p[data-placeholder]:not([data-placeholder=""]),
+    h5+p[data-placeholder]:not([data-placeholder=""]),
+    h6+p[data-placeholder]:not([data-placeholder=""]) {
 
       .tiptap-invisible-character,
       .ProseMirror-separator,

@@ -62,6 +62,7 @@ import OptionBox from './option-box'
 import OrderedList from './ordered-list'
 import PageBreak from './page-break'
 import SearchReplace from './search-replace'
+import SectionAnchor from './section-anchor'
 import Selection from './selection'
 import { Table, TableCell, TableHeader, TableRow } from './table'
 import Tag from './tag'
@@ -203,7 +204,10 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
       showOnlyCurrent: false,
       placeholder: ({ node, pos }) => {
         if (node.type.name === 'heading') {
-          return pos === 0 ? t('document.headingPlaceholder') : ''
+          // 所有空标题都返回占位文本（不能返回空串）：空 data-placeholder 会触发
+          // editor.less 里隐藏 .ProseMirror-trailingBreak 的规则，但 ::after 又无内容，
+          // 导致空标题塌成 0px 高度 → 不可见、不可点、无法输入。返回非空文本保证有高度。
+          return t('document.headingPlaceholder')
         }
         return String(l(doc?.placeholder || ''))
       },
@@ -232,6 +236,7 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
     TaskItem.configure({ nested: true }),
     LineHeight,
     SearchReplace,
+    SectionAnchor,
 
     // 插入
     File,

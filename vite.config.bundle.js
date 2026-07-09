@@ -92,6 +92,11 @@ export default defineConfig({
   plugins: [ReactivityTransform(), ...Object.values(vuePlugins)],
   css: cssConfig,
   build: buildConfig,
+  // @turbodocx/html-to-docx 的 browser build 里有裸 `global` 引用（用于 Blob 兜底判断），
+  // 浏览器/WKWebView 下没有 global 会抛 ReferenceError，映射到 globalThis。
+  define: {
+    global: 'globalThis',
+  },
   esbuild: {
     drop: ['debugger'],
   },

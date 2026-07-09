@@ -638,6 +638,18 @@
     "replace": "替换",
     "replaceAll": "全部替换"
   },
+  "history": {
+    "text": "历史版本",
+    "empty": "暂无历史版本",
+    "ai": "AI",
+    "manual": "手动"
+  },
+  "exportDoc": {
+    "text": "导出",
+    "word": "导出 Word",
+    "pdf": "导出 PDF",
+    "generating": "正在生成，请稍候…"
+  },
   "toc": {
     "title": "页面大纲",
     "show": "显示大纲",

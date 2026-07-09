@@ -79,6 +79,15 @@
             <menus-toolbar-base-markdown v-if="!disableMenu('markdown')" />
             <menus-toolbar-base-search-replace />
           </div>
+          <div
+            v-if="options.history?.onList || options.onExport"
+            class="umo-virtual-group"
+          >
+            <menus-toolbar-base-history-version
+              v-if="options.history?.onList"
+            />
+            <menus-toolbar-base-export-word v-if="options.onExport" />
+          </div>
           <div class="umo-virtual-group">
             <menus-toolbar-base-print v-if="!disableMenu('print')" />
           </div>
