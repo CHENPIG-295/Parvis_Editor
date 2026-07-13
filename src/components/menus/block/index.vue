@@ -34,9 +34,11 @@ let selectedNodePos = $ref(null)
 
 const nodeChange = ({ node, pos }) => {
   selectedNode = node || null
-  if (pos !== null) {
-    selectedNodePos = pos
-  }
+  // 插件用 pos: -1 / node: null 表示“隐藏”，此时必须复位为 null，
+  // 否则 is-visible 会被永久锁定，handle 冻结在上一次的位置。
+  selectedNode && pos !== null && pos >= 0
+    ? (selectedNodePos = pos)
+    : (selectedNodePos = null)
 }
 
 const dropdownVisible = (visible) => {

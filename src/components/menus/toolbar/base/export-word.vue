@@ -221,6 +221,65 @@ const replaceEchartsWithImages = async (html) => {
   return doc.body.innerHTML
 }
 
+// 把 SVG data-uri 的 <img> 光栅化成 PNG data-uri（仅 Word 导出用）。
+// 背景：流程图（draw.io diagrams 节点）的 src 是 SVG data-uri。turbodocx 浏览器构建无
+// sharp，会把 SVG 原样嵌进 docx；而 docx 里的 SVG 图片需 Office 2019+ 才支持，Parvis
+// 内置预览用的 docx-preview(0.3.7) 渲不了 → 显示问号（WPS/新版 Office 能渲染故正常）。
+// 导出前统一转 PNG，兼容所有阅读器。PDF 路径不走此函数：原生 WebView 支持 SVG，保留矢量更清晰。
+const rasterizeSvgDataUrl = (svgDataUrl, w, h) =>
+  new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      // 无显式尺寸时用 SVG 自身固有尺寸兜底；再套 2x 提升清晰度。
+      const bw = w > 0 ? w : img.naturalWidth || 800
+      const bh = h > 0 ? h : img.naturalHeight || 600
+      const scale = 2
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(bw * scale)
+      canvas.height = Math.round(bh * scale)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) {
+        resolve(null)
+        return
+      }
+      // 白底：流程图 SVG 多为透明背景，docx/预览里透明会显脏，铺白更接近所见。
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      try {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+        resolve({ dataURL: canvas.toDataURL('image/png'), w: bw, h: bh })
+      } catch (err) {
+        console.error('[parvis-editor] SVG 光栅化失败:', err)
+        resolve(null)
+      }
+    }
+    img.onerror = () => resolve(null)
+    img.src = svgDataUrl
+  })
+
+// 把正文里所有 SVG data-uri 的 <img>（主要是流程图 diagrams 节点）换成 PNG <img>。
+// echarts 已在 replaceEchartsWithImages 里转成 PNG，不会命中这里（只匹配 svg+xml）。
+const replaceSvgImagesWithPng = async (html) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const imgs = Array.from(doc.querySelectorAll('img')).filter((img) =>
+    (img.getAttribute('src') || '').startsWith('data:image/svg+xml'),
+  )
+  if (imgs.length === 0) return html
+  for (const img of imgs) {
+    const src = img.getAttribute('src') || ''
+    const w = parseInt(img.getAttribute('width') || '0', 10) || 0
+    const h = parseInt(img.getAttribute('height') || '0', 10) || 0
+    const rendered = await rasterizeSvgDataUrl(src, w, h)
+    if (!rendered) continue // 转换失败保留原 SVG，不阻断导出
+    img.setAttribute('src', rendered.dataURL)
+    if (rendered.w > 0) img.setAttribute('width', String(rendered.w))
+    if (rendered.h > 0) img.setAttribute('height', String(rendered.h))
+    img.style.maxWidth = '100%'
+    img.style.height = 'auto'
+  }
+  return doc.body.innerHTML
+}
+
 // cm → twip（1cm ≈ 566.929 twip）。
 const cmToTwip = (cm) => Math.round((Number(cm) || 0) * 566.929)
 
@@ -320,9 +379,10 @@ const handleExportWord = async () => {
     // Tiptap getHTML() 是干净的 ProseMirror 序列化结果（不含 node-view 的拖拽手柄/
     // 装饰等 DOM 副产物），且已把用户格式（加粗/斜体/颜色/字号/字体/对齐/列表/表格/
     // 图片）以内联方式带出，是「所见即所得」的内容来源；再拼上页面样式表一起转换。
-    // 先把 <echarts> 换成位图 <img>，再做表格规整（顺序无所谓，二者作用对象不重叠）。
+    // 先把 <echarts> 换成位图 <img>，再把 SVG data-uri 图（流程图）光栅化成 PNG
+    //（docx 里 SVG 需 Office 2019+，Parvis 内置 docx-preview 渲不了 → 问号），最后表格规整。
     const contentHtml = normalizeTablesForDocx(
-      await replaceEchartsWithImages(editor.value.getHTML()),
+      await replaceSvgImagesWithPng(await replaceEchartsWithImages(editor.value.getHTML())),
     )
 
     const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8">${getStylesHtml()}</head><body><div class="tiptap umo-editor">${contentHtml}</div></body></html>`
@@ -341,7 +401,7 @@ const handleExportWord = async () => {
           })
 
     // 宿主注入了 onExport：把生成好的 blob 交给宿主用真实标题命名并 Tauri save() 落盘。
-    const onExport = options.value.onExport
+    const {onExport} = options.value
     if (typeof onExport === 'function') {
       await onExport({ blob, filename: getFallbackFilename('docx'), format: 'word' })
     } else {
@@ -485,7 +545,7 @@ const handleExportPdfFallback = async (orientationStr) => {
 
   const blob = await worker.outputPdf('blob')
 
-  const onExport = options.value.onExport
+  const {onExport} = options.value
   if (typeof onExport === 'function') {
     await onExport({ blob, filename: getFallbackFilename('pdf'), format: 'pdf' })
   } else {
