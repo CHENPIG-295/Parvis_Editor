@@ -104,6 +104,7 @@
     "@turbodocx/html-to-docx": "^1.22.0",
     "@umoteam/editor-external": "10.1.0",
     "@vueuse/core": "14.2.1",
+    "buffer": "^6.0.3",
     "dom-to-image-more": "3.7.2",
     "es-drager": "1.2.11",
     "fast-glob": "3.3.3",

@@ -83,6 +83,16 @@ import { saveAs } from 'file-saver'
 import html2pdf from 'html2pdf.js'
 // browser 子路径：turbodocx 的浏览器构建，返回 Blob（Node 下返回 Buffer）。
 import HTMLtoDOCX from '@turbodocx/html-to-docx/dist/html-to-docx.browser.esm.js'
+// turbodocx 的浏览器构建在 buildImage 里用了 Node 的 Buffer（Buffer.from/isBuffer）处理图片，
+// 但 WKWebView/浏览器没有 Buffer 全局 → 文档含任何图片（含 echarts 转出的 <img>）时导出崩、
+// 图片被丢弃。用 buffer polyfill 挂到 globalThis 兜底。
+import { Buffer as BufferPolyfill } from 'buffer'
+
+import { loadResource } from '@/utils/load-resource'
+
+if (typeof globalThis.Buffer === 'undefined') {
+  globalThis.Buffer = BufferPolyfill
+}
 
 const container = inject('container')
 const editor = inject('editor')
@@ -107,6 +117,109 @@ const getStylesHtml = () =>
   Array.from(document.querySelectorAll('link, style'))
     .map((item) => item.outerHTML)
     .join('')
+
+// 把正文 HTML 里的 <echarts> 节点替换成图表位图 <img>。
+// 背景：echarts 节点用运行时 <canvas> 绘制，getHTML() 序列化出的 <echarts …> 是空标签，
+// html-to-docx / PDF 渲染都不认它、也拿不到 canvas 位图 → 导出丢图表。
+// 两级取图（保证「未滚动到视口 / 实例已销毁」的图表也能导出）：
+//   1) 优先用当前已渲染的实例 echarts.getInstanceByDom(#chart-X).getDataURL()（快、所见即所得）；
+//   2) 取不到实例时，读节点 chart-options 属性离屏渲染一张（AI chart_generate 产出的节点
+//      始终带 chart-options）。两者都拿不到才保留原标签、不阻断导出。
+// 离屏渲染需 echarts 已加载，导出前统一 ensure 一次。
+const ECHARTS_EXPORT_WIDTH = 720 // 离屏渲染宽度（无实例参照时的兜底画布宽，px）
+
+const ensureECharts = async () => {
+  if (typeof window.echarts !== 'undefined') return true
+  try {
+    const url =
+      options.value.echartsUrl ||
+      `${options.value.cdnUrl}/libs/echarts/echarts.min.js`
+    await loadResource(url)
+  } catch {
+    /* 加载失败下面判定为不可用 */
+  }
+  return typeof window.echarts !== 'undefined'
+}
+
+// 用 chart-options 属性离屏渲染，返回 { dataURL, w, h }；失败返回 null。
+const renderOffscreen = (optionsJson, width) => {
+  let option
+  try {
+    option = JSON.parse(optionsJson)
+  } catch {
+    return null
+  }
+  if (!option || typeof option !== 'object') return null
+  const holder = document.createElement('div')
+  const w = width > 0 ? width : ECHARTS_EXPORT_WIDTH
+  const h = Math.round(w * 0.5)
+  holder.style.cssText = `position:absolute;left:-99999px;top:0;width:${w}px;height:${h}px;`
+  document.body.appendChild(holder)
+  let inst = null
+  try {
+    inst = window.echarts.init(holder)
+    inst.setOption(option)
+    const dataURL = inst.getDataURL({
+      type: 'png',
+      pixelRatio: 2,
+      backgroundColor: '#fff',
+    })
+    return { dataURL, w, h }
+  } catch (err) {
+    console.error('[parvis-editor] echarts 离屏渲染失败:', err)
+    return null
+  } finally {
+    if (inst) inst.dispose()
+    holder.remove()
+  }
+}
+
+const replaceEchartsWithImages = async (html) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const nodes = Array.from(doc.querySelectorAll('echarts'))
+  if (nodes.length === 0) return html
+  if (!(await ensureECharts())) return html
+  for (const node of nodes) {
+    const id = node.getAttribute('id')
+    // 1) 优先用已渲染实例
+    const dom = id ? document.getElementById(`chart-${id}`) : null
+    const inst = dom ? window.echarts.getInstanceByDom(dom) : null
+    let src = null
+    let w = 0
+    let h = 0
+    if (inst) {
+      try {
+        src = inst.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' })
+        w = Math.round(inst.getWidth() || dom.offsetWidth || 0)
+        h = Math.round(inst.getHeight() || dom.offsetHeight || 0)
+      } catch (err) {
+        console.error('[parvis-editor] echarts 实例取图失败，改离屏渲染:', err)
+        src = null
+      }
+    }
+    // 2) 无实例 / 取图失败：用 chart-options 离屏渲染
+    if (!src) {
+      const optionsJson = node.getAttribute('chart-options')
+      if (!optionsJson) continue
+      const rendered = renderOffscreen(optionsJson, dom?.offsetWidth || 0)
+      if (!rendered) continue
+      ;({ dataURL: src, w, h } = rendered)
+    }
+    const img = doc.createElement('img')
+    img.setAttribute('src', src)
+    // 显式 width/height 属性：docx 布局按属性取尺寸；PDF 原生 WebView 下也保证有确定高度
+    // （只靠 aspect-ratio 在部分 WebView 里算不出高、图会塌成 0 高度看不见）。
+    if (w > 0) img.setAttribute('width', String(w))
+    if (h > 0) img.setAttribute('height', String(h))
+    // 响应式收窄：宽度超容器时等比缩小（height:auto 覆盖上面的固定 height 属性）。
+    img.style.maxWidth = '100%'
+    img.style.height = 'auto'
+    const alt = node.getAttribute('name')
+    if (alt) img.setAttribute('alt', alt)
+    node.replaceWith(img)
+  }
+  return doc.body.innerHTML
+}
 
 // cm → twip（1cm ≈ 566.929 twip）。
 const cmToTwip = (cm) => Math.round((Number(cm) || 0) * 566.929)
@@ -207,11 +320,25 @@ const handleExportWord = async () => {
     // Tiptap getHTML() 是干净的 ProseMirror 序列化结果（不含 node-view 的拖拽手柄/
     // 装饰等 DOM 副产物），且已把用户格式（加粗/斜体/颜色/字号/字体/对齐/列表/表格/
     // 图片）以内联方式带出，是「所见即所得」的内容来源；再拼上页面样式表一起转换。
-    const contentHtml = normalizeTablesForDocx(editor.value.getHTML())
+    // 先把 <echarts> 换成位图 <img>，再做表格规整（顺序无所谓，二者作用对象不重叠）。
+    const contentHtml = normalizeTablesForDocx(
+      await replaceEchartsWithImages(editor.value.getHTML()),
+    )
 
     const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8">${getStylesHtml()}</head><body><div class="tiptap umo-editor">${contentHtml}</div></body></html>`
 
-    const blob = await HTMLtoDOCX(fullHtml, null, buildDocumentOptions())
+    const result = await HTMLtoDOCX(fullHtml, null, buildDocumentOptions())
+
+    // 归一化成 Blob：turbodocx 浏览器构建在「全局存在 Buffer」时会返回 Node Buffer 而非 Blob
+    // （见其 generateAsync 后的 hasOwnProperty(global,'Buffer') 分支）。我们为了让 buildImage
+    // 能处理图片补了 Buffer polyfill，反而触发这个分支 → 返回 Buffer，宿主 blob.arrayBuffer()
+    // 就崩。这里统一兜成 Blob：已是 Blob 直接用；否则（Buffer/Uint8Array/ArrayBuffer）包一层。
+    const blob =
+      result instanceof Blob
+        ? result
+        : new Blob([result], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          })
 
     // 宿主注入了 onExport：把生成好的 blob 交给宿主用真实标题命名并 Tauri save() 落盘。
     const onExport = options.value.onExport
@@ -233,8 +360,8 @@ const handleExportWord = async () => {
 // 编辑态 DOM），而不是 .umo-page-content 的 outerHTML —— 否则气泡按钮会进 PDF、且会
 // 带上用户当前缩放/横向滚动状态导致右侧被裁。再用样式表 + 固定 A4 页宽 + 正常缩放，
 // 让原生 WebView 从零重新布局，保证内容完整、所见即所得（正文样式一致）。
-const buildStyledHtml = (orientationStr) => {
-  const contentHtml = editor.value?.getHTML() ?? ''
+const buildStyledHtml = async (orientationStr) => {
+  const contentHtml = await replaceEchartsWithImages(editor.value?.getHTML() ?? '')
   const theme = options.value.theme || 'light'
   const { margin } = page.value ?? {}
 
@@ -311,7 +438,7 @@ const handleExportPdf = async () => {
     if (typeof onNative === 'function') {
       try {
         const ok = await onNative({
-          html: buildStyledHtml(orientationStr),
+          html: await buildStyledHtml(orientationStr),
           orientation: orientationStr,
           filename: getFallbackFilename('pdf'),
         })

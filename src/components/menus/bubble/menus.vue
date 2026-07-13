@@ -128,22 +128,16 @@
     <!-- <menus-bubble-node-delete /> -->
   </template>
   <template v-else>
-    <menus-toolbar-base-font-size :select="false" />
-    <div
-      v-if="!disable('font-size-increase') || !disable('font-size-decrease')"
-      class="umo-bubble-menu-divider"
-    ></div>
-    <menus-toolbar-base-bold />
-    <menus-toolbar-base-italic />
-    <menus-toolbar-base-underline />
-    <menus-toolbar-base-strike />
+    <menus-bubble-text-ai-rewrite />
+    <menus-bubble-text-generate-chart />
+    <menus-bubble-text-quote-to-chat />
     <div class="umo-bubble-menu-divider"></div>
+    <menus-toolbar-base-font-size :select="false" />
+    <menus-toolbar-base-bold />
     <menus-toolbar-base-align-dropdown />
-    <menus-toolbar-insert-link v-if="!disable('link')" />
     <div class="umo-bubble-menu-divider"></div>
     <menus-toolbar-base-color />
     <template v-if="!is('textBox')">
-      <menus-toolbar-base-background-color />
       <menus-toolbar-base-highlight v-if="!disable('highlight')" />
     </template>
     <template v-else>

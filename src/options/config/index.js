@@ -156,6 +156,9 @@ export default {
   ],
   templates: [],
   cdnUrl: 'https://unpkg.com/@umoteam/editor-external@latest',
+  // echarts.min.js 专用地址：宿主可指向自托管副本，避免每次刷新都从远程 CDN 下 ~1MB。
+  // 留空则回退到 `${cdnUrl}/libs/echarts/echarts.min.js`（保持原行为）。
+  echartsUrl: '',
   shareUrl: location.href || '',
   diagrams: {
     domain: 'https://embed.diagrams.net',

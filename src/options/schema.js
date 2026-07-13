@@ -607,6 +607,11 @@ export default new ObjectSchema({
     validate: 'string',
     required: false,
   },
+  echartsUrl: {
+    merge: 'replace',
+    validate: 'string',
+    required: false,
+  },
   diagrams: {
     required: false,
     merge: 'assign',
@@ -803,6 +808,45 @@ export default new ObjectSchema({
     validate(value) {
       if (value !== undefined && typeof value !== 'function') {
         throw new Error('Key "onExportPdfNative" must be a function.')
+      }
+    },
+    required: false,
+  },
+  // 气泡工具栏「AI 改写」：宿主注入。编辑器把选中文本 + 上下文交给宿主，
+  // 宿主调 AI 润色/扩写/缩写并替换选区。契约：
+  // onAIRewrite({ action:'polish'|'expand'|'shorten', selectedText, selection:{from,to}, contextBefore, contextAfter }) => Promise<void>
+  // 未注入则气泡栏不显示该按钮。
+  onAIRewrite: {
+    merge: 'replace',
+    validate(value) {
+      if (value !== undefined && typeof value !== 'function') {
+        throw new Error('Key "onAIRewrite" must be a function.')
+      }
+    },
+    required: false,
+  },
+  // 气泡工具栏「生成图表」：宿主注入。编辑器把选中文本 + 上下文交给宿主，
+  // 宿主生成图表并插入选区之后。契约：
+  // onGenerateChart({ chartType:'pie'|'bar'|'line', selectedText, selection:{from,to}, contextBefore, contextAfter }) => Promise<void>
+  // 未注入则气泡栏不显示该按钮。
+  onGenerateChart: {
+    merge: 'replace',
+    validate(value) {
+      if (value !== undefined && typeof value !== 'function') {
+        throw new Error('Key "onGenerateChart" must be a function.')
+      }
+    },
+    required: false,
+  },
+  // 气泡工具栏「引用到对话」：宿主注入。编辑器把选中文本交给宿主，
+  // 宿主将其作为引用带入对话输入框。契约：
+  // onQuoteToChat({ selectedText }) => void
+  // 未注入则气泡栏不显示该按钮。
+  onQuoteToChat: {
+    merge: 'replace',
+    validate(value) {
+      if (value !== undefined && typeof value !== 'function') {
+        throw new Error('Key "onQuoteToChat" must be a function.')
       }
     },
     required: false,

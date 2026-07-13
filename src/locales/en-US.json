@@ -545,6 +545,24 @@
     "delete": "Delete"
   },
   "bubbleMenu": {
+    "selectTextFirst": "Please select text first",
+    "aiRewrite": {
+      "title": "AI Rewrite",
+      "polish": "Polish",
+      "expand": "Expand",
+      "shorten": "Shorten",
+      "failed": "AI processing failed, please retry"
+    },
+    "generateChart": {
+      "title": "Generate Chart",
+      "pie": "Pie Chart",
+      "bar": "Bar Chart",
+      "line": "Line Chart",
+      "failed": "Chart generation failed"
+    },
+    "quoteToChat": {
+      "title": "Quote to Chat"
+    },
     "code": {
       "copy": {
         "text": "Copy Code",

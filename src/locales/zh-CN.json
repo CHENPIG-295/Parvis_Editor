@@ -544,6 +544,24 @@
     "delete": "删除"
   },
   "bubbleMenu": {
+    "selectTextFirst": "请先选择要处理的文本",
+    "aiRewrite": {
+      "title": "AI 改写",
+      "polish": "润色",
+      "expand": "扩写",
+      "shorten": "缩写",
+      "failed": "AI 处理失败，请重试"
+    },
+    "generateChart": {
+      "title": "生成图表",
+      "pie": "饼图",
+      "bar": "柱状图",
+      "line": "折线图",
+      "failed": "图表生成失败"
+    },
+    "quoteToChat": {
+      "title": "引用到对话"
+    },
     "code": {
       "copy": {
         "text": "复制代码",

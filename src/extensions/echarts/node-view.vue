@@ -58,15 +58,50 @@ let maxWidth = $ref(0)
 let selected = $ref(false)
 let chart = null
 let chartOption = $ref(null)
+let resizeObserver = null
+
+// 测量可用宽度：读【父容器（编辑器内容列）】宽度，而非本节点自身宽度。
+// 关键——插入瞬间 attrs.width 为 null → drager 宽度为 Number(null)=0 → drager 塌陷 →
+// 外层 umo-node-view 跟着内容收缩到 ~2px（border/outline）。若此时读本节点自己的
+// offsetWidth 会得到 2px 并把宽度锁死，形成反馈回路（表现为刷新前 2px 细条、刷新后正常）。
+// 父容器宽度不受本节点塌陷影响，稳定可靠。
+const measureWidth = () => {
+  const el = containerRef.value?.$el
+  if (!el) return
+  const w = el.parentElement?.clientWidth || el.offsetWidth || 0
+  if (w <= 0) return
+  if (w !== maxWidth) {
+    maxWidth = w
+    if (chart !== null) {
+      chart.resize()
+    }
+  }
+  // 仅在尚未有有效宽度（null）或宽度已被锁成异常小值（<=2px）时写回，
+  // 既能修复塌陷、又不覆盖用户手动拖拽后的正常宽度。
+  if (attrs.width === null || Number(attrs.width) <= 2) {
+    updateAttributes({ width: w })
+    if (chart !== null) {
+      chart.resize()
+    }
+  }
+}
 
 // 加载数据
 onMounted(async () => {
   await nextTick()
-  maxWidth = containerRef.value?.$el.offsetWidth
-  if (attrs.width === null) {
-    updateAttributes({ width: maxWidth })
+  measureWidth()
+  // 首次挂载可能测得 0（容器未布局）；用 ResizeObserver 在布局就绪后补测一次，
+  // 修复经 HTML 往返/整篇 setContent 插入的图表宽度塌陷问题。
+  if (containerRef.value?.$el && typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(() => measureWidth())
+    resizeObserver.observe(containerRef.value.$el)
   }
   await loadData()
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  resizeObserver = null
 })
 
 // 初始化样式，需要在 margin 和 nodeAlign 里面增加 name 才可以
@@ -101,8 +136,12 @@ onClickOutside(containerRef, () => {
 // 数据加载
 const loadData = async () => {
   await nextTick()
-  // 确保 loadData 在 echarts 加载完毕后调用
-  await loadResource(`${options.value.cdnUrl}/libs/echarts/echarts.min.js`)
+  // 确保 loadData 在 echarts 加载完毕后调用。优先用宿主自托管的 echartsUrl（避免每次刷新
+  // 都从远程 CDN 下 ~1MB），留空则回退默认 CDN。
+  const echartsUrl =
+    options.value.echartsUrl ||
+    `${options.value.cdnUrl}/libs/echarts/echarts.min.js`
+  await loadResource(echartsUrl)
 
   // 等待 echarts 加载完成
   const waitForECharts = () => {

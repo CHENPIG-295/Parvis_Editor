@@ -413,7 +413,11 @@ watch(
 // 界面数据加载
 const loadModeEchart = async () => {
   await nextTick()
-  await loadResource(`${options.value.cdnUrl}/libs/echarts/echarts.min.js`)
+  // 优先用宿主自托管的 echartsUrl，留空则回退默认 CDN。
+  const echartsUrl =
+    options.value.echartsUrl ||
+    `${options.value.cdnUrl}/libs/echarts/echarts.min.js`
+  await loadResource(echartsUrl)
   // 接下来的使用就跟之前一样，初始化图表，设置配置项
   if (typeof echarts !== 'undefined') {
     //  根据参数不同 实现效果不同

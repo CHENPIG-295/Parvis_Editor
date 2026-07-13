@@ -27,10 +27,20 @@ export default Node.create({
       },
       height: {
         default: 300,
+        // 从 HTML 属性解析回来是字符串，强转 Number（服务端往返后 es-drager 等按数值用）
+        parseHTML: (element) => {
+          const _h = element.getAttribute('height')
+          return _h ? Number(_h) : 300
+        },
       },
       mode: {
         // 图表设置时，默认打开的模式 0，表示直接使用 echarts 的 options，json: 源码模式，1: 可视化模式，可以通过配置创建图表
         default: 1,
+        // 从 HTML 属性解析回来是字符串，node-view 用 mode === 1 判定，必须强转 Number
+        parseHTML: (element) => {
+          const _m = element.getAttribute('mode')
+          return _m === null ? 1 : Number(_m)
+        },
       },
       chartOptions: {
         // 展示配置，echarts 的 options，mode==0 时使用
