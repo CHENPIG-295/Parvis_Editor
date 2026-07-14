@@ -561,7 +561,11 @@
       "failed": "Chart generation failed"
     },
     "quoteToChat": {
-      "title": "Quote to Chat"
+      "title": "Quote to Chat",
+      "chart": "Send to chat to edit",
+      "flowchart": "Send to chat to edit",
+      "noChart": "Failed to read chart data",
+      "noFlowchart": "Failed to read flowchart data"
     },
     "code": {
       "copy": {

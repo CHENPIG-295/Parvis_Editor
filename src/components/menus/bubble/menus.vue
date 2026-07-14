@@ -31,6 +31,7 @@
       "
     />
     <menus-bubble-image-edit />
+    <menus-bubble-image-quote-to-chat-diagrams v-if="isDiagrams()" />
     <menus-bubble-image-open v-if="false" />
     <menus-bubble-node-duplicate
       v-if="is('image') && attrs('image').draggable"
@@ -98,6 +99,7 @@
     <menus-toolbar-base-align-right />
     <div class="umo-bubble-menu-divider"></div>
     <menus-toolbar-tools-echarts ico="setting" />
+    <menus-bubble-echarts-quote-to-chat />
     <menus-bubble-node-delete />
   </template>
   <template v-else-if="is('optionBox')">

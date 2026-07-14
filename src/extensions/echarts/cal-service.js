@@ -100,6 +100,23 @@ export function calbaseConfigOptions(data, config, options) {
         name: resOption.legend.data[i],
         type: config.seriesType,
         data: seriesdata,
+        // 数值标签：饼图显示「名称: 百分比」，柱状/折线在顶部显示数值。
+        // 与宿主对话预览（writing-chart-renderer.ts injectLabels）保持一致。
+        // 饼图长名称不省略：overflow:'break' 超宽换行 + 限宽 + 缩小字号；labelLine 拉长留出空间。
+        label:
+          config.seriesType === 'pie'
+            ? {
+                show: true,
+                formatter: '{b}: {d}%',
+                overflow: 'break',
+                width: 130,
+                fontSize: 11,
+                lineHeight: 15,
+              }
+            : { show: true, position: 'top' },
+        ...(config.seriesType === 'pie'
+          ? { labelLine: { length: 15, length2: 20 } }
+          : {}),
       })
       // 平滑折线
       if (

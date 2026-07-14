@@ -838,9 +838,11 @@ export default new ObjectSchema({
     },
     required: false,
   },
-  // 气泡工具栏「引用到对话」：宿主注入。编辑器把选中文本交给宿主，
-  // 宿主将其作为引用带入对话输入框。契约：
-  // onQuoteToChat({ selectedText }) => void
+  // 气泡工具栏「引用到对话」：宿主注入。编辑器把选中内容交给宿主，
+  // 宿主将其作为引用带入对话输入框。契约（三种载荷之一）：
+  // - 文字：onQuoteToChat({ selectedText })
+  // - 图表：onQuoteToChat({ kind:'chart', data:echartsOption的JSON字符串, chartType, title })
+  // - 流程图：onQuoteToChat({ kind:'flowchart', data:裸mxfileXML, title })
   // 未注入则气泡栏不显示该按钮。
   onQuoteToChat: {
     merge: 'replace',

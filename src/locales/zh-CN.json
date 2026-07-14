@@ -560,7 +560,11 @@
       "failed": "图表生成失败"
     },
     "quoteToChat": {
-      "title": "引用到对话"
+      "title": "引用到对话",
+      "chart": "引入到对话修改",
+      "flowchart": "引入到对话修改",
+      "noChart": "未能读取到图表数据",
+      "noFlowchart": "未能读取到流程图数据"
     },
     "code": {
       "copy": {
