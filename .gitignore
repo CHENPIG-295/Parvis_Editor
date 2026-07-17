@@ -2,8 +2,13 @@
 node_modules/
 
 # Build output
-dist/
+dist/*
 package/
+# 例外：Parvis 写作模式消费的自包含 bundle 产物需随 git 分发，
+# 以便通过 github: 依赖安装后开箱即用（dist 其余产物仍忽略）。
+# 注意此处用 dist/* 而非 dist/，否则 git 不递归进被忽略的目录，下面的例外不生效。
+!dist/parvis-editor.js
+!dist/parvis-editor.css
 
 # Editor directories and files
 .idea/
