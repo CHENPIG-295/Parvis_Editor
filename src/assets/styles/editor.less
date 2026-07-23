@@ -235,7 +235,9 @@
   }
 
   ol {
-    counter-reset: section calc(attr(data-start number, 1) - 1);
+    // 每个 <ol> 的 section 计数器重置改由 ordered-list.js 的 renderHTML 内联输出
+    // （counter-reset: section <start-1>）。此前这里用带类型的 attr() 读 data-start 参与 calc，
+    // 该语法在 WebKit/WKWebView 不支持，导致整条声明被丢弃、序号跨列表累加。
 
     &[data-type='decimal'] li>p:before {
       content: counters(section, '.') '. ';
