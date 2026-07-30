@@ -1,6 +1,7 @@
 import Blockquote from '@tiptap/extension-blockquote'
 import Bold from '@tiptap/extension-bold'
 import Code from '@tiptap/extension-code'
+import Heading from '@tiptap/extension-heading'
 import {
   Details,
   DetailsContent,
@@ -178,6 +179,12 @@ export const getDefaultExtensions = ({ container, options, uploadFileMap }) => {
       orderedList: false,
       trailingNode: false,
       listKeymap: true,
+      heading: false,
+    }),
+    Heading.extend({
+      content: 'inline*',
+    }).configure({
+      levels: [1, 2, 3, 4, 5, 6],
     }),
     Document.extend({
       content: disableExtensions.includes('footnote')

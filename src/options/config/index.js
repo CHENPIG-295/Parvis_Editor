@@ -33,7 +33,7 @@ export default {
       alpha: 0.2,
       fontColor: '#000',
       fontSize: 16,
-      fontFamily: 'SimSun',
+      fontFamily: '',
       fontWeight: 'normal',
       text: '',
     },
