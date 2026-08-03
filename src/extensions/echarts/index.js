@@ -75,6 +75,16 @@ export default Node.create({
         }),
       },
       src: '', // 图片地址路径，也记录图片唯一标识
+      previewSrc: {
+        // 渲染快照：图表 canvas 渲染完成后写入的 PNG data-uri。
+        // 仅供宿主后端导出（Word/PDF）直接嵌图用——echarts 是运行时 canvas 节点，
+        // getHTML() 序列化出的 <echarts> 是空标签，后端拿不到位图。这里把渲染结果
+        // 随正文一起落盘为 <echarts preview-src="data:image/png…">，后端读它即可嵌图。
+        default: '',
+        parseHTML: (element) => element.getAttribute('preview-src') || '',
+        renderHTML: (attributes) =>
+          attributes.previewSrc ? { 'preview-src': attributes.previewSrc } : {},
+      },
       describe: {
         // 描述信息
         default: null,

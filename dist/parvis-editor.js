@@ -124541,29 +124541,29 @@ const qOt = ["data-options"], YOt = ["id"], XOt = {
     const t = e, n = pe(() => t.node.attrs), { updateAttributes: r, getPos: o } = t, a = xt("options"), s = xt("editor"), l = /* @__PURE__ */ ze(null);
     let c = /* @__PURE__ */ ze(0), u = /* @__PURE__ */ ze(!1), d = null, h = /* @__PURE__ */ ze(null), p = null;
     const m = () => {
-      var y, w;
-      const g = (y = l.value) == null ? void 0 : y.$el;
-      if (!g) return;
-      const b = ((w = g.parentElement) == null ? void 0 : w.clientWidth) || g.offsetWidth || 0;
-      b <= 0 || (b !== c.value && (c.value = b, d !== null && d.resize()), (n.value.width === null || Number(n.value.width) <= 2) && (r({ width: b }), d !== null && d.resize()));
+      var w, _;
+      const b = (w = l.value) == null ? void 0 : w.$el;
+      if (!b) return;
+      const y = ((_ = b.parentElement) == null ? void 0 : _.clientWidth) || b.offsetWidth || 0;
+      y <= 0 || (y !== c.value && (c.value = y, d !== null && d.resize()), (n.value.width === null || Number(n.value.width) <= 2) && (r({ width: y }), d !== null && d.resize()));
     };
     ko(async () => {
-      var g;
-      await Do(), m(), (g = l.value) != null && g.$el && typeof ResizeObserver != "undefined" && (p = new ResizeObserver(() => m()), p.observe(l.value.$el)), await A();
+      var b;
+      await Do(), m(), (b = l.value) != null && b.$el && typeof ResizeObserver != "undefined" && (p = new ResizeObserver(() => m()), p.observe(l.value.$el)), await A();
     }), Zs(() => {
       p == null || p.disconnect(), p = null;
     });
     const f = pe(() => {
-      const { nodeAlign: g, margin: b } = n.value, y = b != null && b.top && (b == null ? void 0 : b.top) !== "" ? `${b.top}px` : void 0, w = b != null && b.bottom && (b == null ? void 0 : b.bottom) !== "" ? `${b.bottom}px` : void 0;
+      const { nodeAlign: b, margin: y } = n.value, w = y != null && y.top && (y == null ? void 0 : y.top) !== "" ? `${y.top}px` : void 0, _ = y != null && y.bottom && (y == null ? void 0 : y.bottom) !== "" ? `${y.bottom}px` : void 0;
       return {
-        "justify-content": g,
-        marginTop: y,
-        marginBottom: w
+        "justify-content": b,
+        marginTop: w,
+        marginBottom: _
       };
-    }), v = ({ width: g, height: b }) => {
+    }), v = ({ width: b, height: y }) => {
       r({
-        width: Number(g.toFixed(2)),
-        height: Number(b.toFixed(2))
+        width: Number(b.toFixed(2)),
+        height: Number(y.toFixed(2))
       }), d !== null && d.resize();
     };
     lx(l, () => {
@@ -124571,70 +124571,87 @@ const qOt = ["data-options"], YOt = ["id"], XOt = {
     });
     const A = async () => {
       await Do();
-      const g = a.value.echartsUrl || `${a.value.cdnUrl}/libs/echarts/echarts.min.js`;
-      if (await Vw(g), await new Promise((y, w) => {
-        let _ = 0;
-        const x = 40, C = () => {
-          typeof echarts != "undefined" ? y() : _ < x ? (_++, setTimeout(C, 50)) : y();
+      const b = a.value.echartsUrl || `${a.value.cdnUrl}/libs/echarts/echarts.min.js`;
+      if (await Vw(b), await new Promise((w, _) => {
+        let x = 0;
+        const C = 40, S = () => {
+          typeof echarts != "undefined" ? w() : x < C ? (x++, setTimeout(S, 50)) : w();
         };
-        C();
+        S();
       }), typeof echarts != "undefined") {
-        const { chartOptions: y, chartConfig: w, id: _, mode: x } = n.value;
-        if (d !== null && (d.dispose(), d = null, h.value = null), x === 1) {
-          if (w !== null) {
-            const C = bQ(w.data), S = iOe(
-              C,
-              w.config,
+        const { chartOptions: w, chartConfig: _, id: x, mode: C } = n.value;
+        if (d !== null && (d.dispose(), d = null, h.value = null), C === 1) {
+          if (_ !== null) {
+            const S = bQ(_.data), E = iOe(
+              S,
+              _.config,
               a.value
             );
-            S !== null && (d = echarts.init(document.getElementById(`chart-${_}`)), d.setOption(S), h.value = S);
+            E !== null && (d = echarts.init(document.getElementById(`chart-${x}`)), d.setOption(E), h.value = E);
           }
-        } else y !== null && (d = echarts.init(document.getElementById(`chart-${_}`)), d.setOption(y), h.value = y);
+        } else w !== null && (d = echarts.init(document.getElementById(`chart-${x}`)), d.setOption(w), h.value = w);
+        g();
       }
+    }, g = () => {
+      var y, w;
+      if (d === null || (y = a.value.document) != null && y.readOnly) return;
+      const b = () => {
+        try {
+          const _ = d == null ? void 0 : d.getDataURL({
+            type: "png",
+            pixelRatio: 2,
+            backgroundColor: "#fff"
+          });
+          _ && _ !== n.value.previewSrc && r({ previewSrc: _ });
+        } catch (_) {
+          console.error("[parvis-editor] echarts 快照导出失败:", _);
+        }
+      };
+      (w = d.on) == null || w.call(d, "finished", b), setTimeout(b, 120);
     };
     return _n(
       () => n.value,
-      async (g, b) => {
-        if (g !== void 0 && b !== void 0 && g !== b) {
-          let y = !1;
+      async (b, y) => {
+        if (b !== void 0 && y !== void 0 && b !== y) {
+          let w = !1;
           v({
             width: n.value.width,
             height: n.value.height
           });
-          for (const w in b)
-            if (!(w === "height" || w === "width" || w === "src") && b[w] !== g[w]) {
-              y = !0;
+          for (const _ in y)
+            if (!(_ === "height" || _ === "width" || _ === "src" || _ === "previewSrc") && y[_] !== b[_]) {
+              w = !0;
               break;
             }
-          y && await A();
+          w && await A();
         }
       },
       { deep: !0, immediate: !1 }
-    ), (g, b) => (He(), bt(ye(lg), {
+    ), (b, y) => (He(), bt(ye(lg), {
       id: "chartNode-" + n.value.id,
       ref_key: "containerRef",
       ref: l,
       class: "umo-node-view",
       style: Fs(f.value),
-      onClickCapture: b[1] || (b[1] = (y) => {
-        var w;
-        return (w = ye(s)) == null ? void 0 : w.commands.setNodeSelection(ye(o)());
+      onClickCapture: y[1] || (y[1] = (w) => {
+        var _;
+        return (_ = ye(s)) == null ? void 0 : _.commands.setNodeSelection(ye(o)());
       })
     }, {
       default: Pt(() => {
-        var y, w, _;
+        var w, _, x;
         return [
           at("div", {
             class: ha(["umo-node-container umo-node-echarts umo-select-outline", {
-              "umo-hover-shadow": !((y = ye(a).document) != null && y.readOnly)
+              "umo-hover-shadow": !((w = ye(a).document) != null && w.readOnly)
             }]),
-            "data-options": (w = ye(a).document) != null && w.readOnly ? JSON.stringify(ye(h)) : null
+            "data-options": (_ = ye(a).document) != null && _.readOnly ? JSON.stringify(ye(h)) : null
           }, [
             z(ye(dk), {
               selected: ye(u),
               rotatable: !1,
               boundary: !1,
-              disabled: (_ = ye(a).document) == null ? void 0 : _.readOnly,
+              disabled: (x = ye(a).document) == null ? void 0 : x.readOnly,
               angle: 0,
               width: Number(n.value.width),
               height: Number(n.value.height),
@@ -124642,7 +124659,7 @@ const qOt = ["data-options"], YOt = ["id"], XOt = {
               "min-height": 200,
               "z-index": 10,
               onResize: v,
-              onFocus: b[0] || (b[0] = (x) => /* @__PURE__ */ Eo(u) ? u.value = !0 : u = !0)
+              onFocus: y[0] || (y[0] = (C) => /* @__PURE__ */ Eo(u) ? u.value = !0 : u = !0)
             }, {
               default: Pt(() => [
                 at("div", {
@@ -124722,6 +124739,15 @@ const qOt = ["data-options"], YOt = ["id"], XOt = {
       },
       src: "",
       // 图片地址路径，也记录图片唯一标识
+      previewSrc: {
+        // 渲染快照：图表 canvas 渲染完成后写入的 PNG data-uri。
+        // 仅供宿主后端导出（Word/PDF）直接嵌图用——echarts 是运行时 canvas 节点，
+        // getHTML() 序列化出的 <echarts> 是空标签，后端拿不到位图。这里把渲染结果
+        // 随正文一起落盘为 <echarts preview-src="data:image/png…">，后端读它即可嵌图。
+        default: "",
+        parseHTML: (e) => e.getAttribute("preview-src") || "",
+        renderHTML: (e) => e.previewSrc ? { "preview-src": e.previewSrc } : {}
+      },
       describe: {
         // 描述信息
         default: null

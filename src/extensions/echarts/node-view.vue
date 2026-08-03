@@ -193,7 +193,33 @@ const loadData = async () => {
       chart.setOption(chartOptions)
       chartOption = chartOptions
     }
+    // 渲染完成后把 PNG 快照写回 previewSrc，供宿主后端导出（Word/PDF）直接嵌图。
+    // 放在末尾统一处理两种 mode；渲染是异步的，用 finished 事件后取图更稳。
+    capturePreview()
   }
+}
+
+// 把当前图表 canvas 导出为 PNG data-uri 写回 previewSrc（仅当有变化时写，避免无谓落盘）。
+// canvas renderer 可直接 getDataURL 拿到 PNG；写回的属性已在 watch 跳过列表里，不触发重载。
+const capturePreview = () => {
+  if (chart === null || options.value.document?.readOnly) return
+  const write = () => {
+    try {
+      const dataURL = chart?.getDataURL({
+        type: 'png',
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+      })
+      if (dataURL && dataURL !== attrs.previewSrc) {
+        updateAttributes({ previewSrc: dataURL })
+      }
+    } catch (err) {
+      console.error('[parvis-editor] echarts 快照导出失败:', err)
+    }
+  }
+  // echarts 渲染是异步的，等一帧确保 canvas 已绘制再取图。
+  chart.on?.('finished', write)
+  setTimeout(write, 120)
 }
 
 // 监听 attrs 变化并在变化时重新加载数据
@@ -213,7 +239,12 @@ watch(
         height: attrs.height,
       })
       for (const attr1 in oldAttrs) {
-        if (attr1 === 'height' || attr1 === 'width' || attr1 === 'src') {
+        if (
+          attr1 === 'height' ||
+          attr1 === 'width' ||
+          attr1 === 'src' ||
+          attr1 === 'previewSrc'
+        ) {
           continue
         }
         if (oldAttrs[attr1] !== newAttrs[attr1]) {
