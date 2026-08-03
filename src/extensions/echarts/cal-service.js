@@ -2,6 +2,30 @@
 此服务主要作用echarts相关的一些公共处理方法 主要用于基础模式
 */
 
+// 饼图布局：按扇区（图例）项数，为底部横向图例预留垂直空间，避免图例换多行时
+// 与饼图本体/引出标签重叠。返回饼图的 center / radius / 建议节点高度。
+// 与宿主对话预览 writing-chart-renderer.ts 的 pieLayout 保持同一套公式，
+// 保证「插入编辑器后」与「对话预览」布局一致。改一处务必同步另一处。
+export function pieLayout(itemCount) {
+  const ITEMS_PER_ROW = 5 // 按约 700px 宽、中文图例保守估算每行项数
+  const ROW_PX = 24 // 单行图例高度（含行距）
+  const legendRows = Math.min(4, Math.max(1, Math.ceil((itemCount || 1) / ITEMS_PER_ROW)))
+  // 底部图例带高度（贴着底边，只占刚好容纳图例的高度 + 少量间距）
+  const legendBandPx = legendRows * ROW_PX + 8
+  const base = 320 // 单行图例时的基础高度
+  const height = base + (legendRows - 1) * ROW_PX // 每多一行图例，节点增高一行的量
+  const pieAreaPx = Math.max(160, height - legendBandPx) // 图例带之上留给饼图的高度
+  // center Y：饼图区域的垂直中点（相对整块高度的百分比）
+  const centerYPercent = Math.round((pieAreaPx / 2 / height) * 100)
+  // radius：吃满饼图区域（引出标签靠 labelLine 拉出，无需额外大幅留白），封顶避免溢出
+  const radiusPercent = Math.min(72, Math.round(((pieAreaPx * 0.72) / height) * 100))
+  return {
+    height,
+    center: ['50%', `${centerYPercent}%`],
+    radius: `${radiusPercent}%`,
+  }
+}
+
 // 基础模式下，对界面数据进行加工处理，根据第一列为空时不作为有效数据
 export function calbaseConfigData(data) {
   if (!data) {
@@ -115,7 +139,14 @@ export function calbaseConfigOptions(data, config, options) {
               }
             : { show: true, position: 'top' },
         ...(config.seriesType === 'pie'
-          ? { labelLine: { length: 15, length2: 20 } }
+          ? {
+              labelLine: { length: 15, length2: 20 },
+              // 按图例项数上移并缩小饼图，为底部换行图例让出空间，避免重叠
+              ...(() => {
+                const { center, radius } = pieLayout(seriesdata.length)
+                return { center, radius }
+              })(),
+            }
           : {}),
       })
       // 平滑折线
@@ -133,19 +164,21 @@ export function calbaseConfigOptions(data, config, options) {
 
   calbaseConfigOptionsInType()
 
-  // 4.0 grid 属性设置
-  resOption.grid = {
-    left: '3%',
-    right: '4%',
-    top: 30,
-    bottom: 30,
-    containLabel: true,
-  }
-  if (resOption?.legend?.show) {
-    if (resOption?.legend?.bottom) {
-      resOption.grid.bottom = 60
-    } else {
-      resOption.grid.top = 60
+  // 4.0 grid 属性设置（仅柱状/折线用；饼图不使用 grid，改由 pieLayout 的 center/radius 让位）
+  if (config.seriesType !== 'pie') {
+    resOption.grid = {
+      left: '3%',
+      right: '4%',
+      top: 30,
+      bottom: 30,
+      containLabel: true,
+    }
+    if (resOption?.legend?.show) {
+      if (resOption?.legend?.bottom) {
+        resOption.grid.bottom = 60
+      } else {
+        resOption.grid.top = 60
+      }
     }
   }
 
